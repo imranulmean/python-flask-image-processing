@@ -21,7 +21,15 @@ function App() {
     })
     const result= await res.json();
     console.log(result);
-    await downloadFile(result.fileName);
+    // await downloadFile(result.fileName);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'compressed_image.jpg');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);    
   }
 
   const downloadFile = async (filename) => {
