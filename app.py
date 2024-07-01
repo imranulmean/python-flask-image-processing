@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from PIL import Image
 import io
+import math
 
 # app instance
 app = Flask(__name__)
@@ -22,7 +23,7 @@ def get_size_format(b, factor=1024, suffix="B"):
         b /= factor
     return f"{b:.2f}Y{suffix}"
 
-def compress_img(image_data, new_size_ratio=0.9, quality=30, width=None, height=None, to_jpg=True):
+def compress_img(image_data, new_size_ratio=0.9, quality=15, width=None, height=None, to_jpg=True):
 
     img = Image.open(io.BytesIO(image_data))
     # Convert RGBA image to RGB
@@ -102,6 +103,55 @@ def upload():
 @app.route('/download/<filename>')
 def download_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/api/image_to_pdf', methods=['POST'])
+def image_to_pdf():
+    if 'images' not in request.files:
+        return 'No files part', 400
+
+    images = request.files.getlist('images')
+    if len(images) == 0:
+        return 'No files selected', 400
+
+    pages = int(request.form.get('pages', 1))
+
+    # Open images and create a list of Image objects
+    img_list = [Image.open(img).convert('RGB') for img in images]
+
+    # Calculate the number of images per page
+    imgs_per_page = math.ceil(len(img_list) / pages)
+
+    pdf_pages = []
+    for i in range(pages):
+        # Get the images for the current page
+        page_images = img_list[i*imgs_per_page:(i+1)*imgs_per_page]
+        
+        if not page_images:
+            break
+
+        # Calculate the max width and total height for the current page
+        widths, heights = zip(*(img.size for img in page_images))
+        max_width = max(widths)
+        total_height = sum(heights)
+
+        # Create a new blank image with the calculated dimensions
+        pdf_page = Image.new('RGB', (max_width, total_height))
+
+        # Paste all images into the blank image
+        y_offset = 0
+        for img in page_images:
+            pdf_page.paste(img, (0, y_offset))
+            y_offset += img.size[1]
+
+        pdf_pages.append(pdf_page)
+
+    # Create a BytesIO object to hold the PDF data
+    pdf_bytes = io.BytesIO()
+    pdf_pages[0].save(pdf_bytes, format='PDF', save_all=True, append_images=pdf_pages[1:])
+    pdf_bytes.seek(0)
+
+    # Send the PDF back to the client
+    return send_file(pdf_bytes, mimetype='application/pdf', as_attachment=True, download_name='output.pdf')
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
