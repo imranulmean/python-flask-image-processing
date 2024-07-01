@@ -26,10 +26,12 @@ export default function ImageToPdfConverter(){
 
   const image_to_pdf= async (e)=>{
     e.preventDefault();
+    // const image_to_pdf_Url='http://127.0.0.1:8080/api/image_to_pdf';
+    const image_to_pdf_Url="https://python-flask-image-processing.onrender.com/api/image_to_pdf";
     const formData = new FormData();
     files.forEach(file => formData.append('images', file));
     formData.append('pages', pages);
-    const response = await fetch('http://127.0.0.1:8080/api/image_to_pdf', {
+    const response = await fetch(image_to_pdf_Url, {
       method: 'POST',
       body: formData,
     });

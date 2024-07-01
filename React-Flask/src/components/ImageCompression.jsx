@@ -6,9 +6,11 @@ export default function ImageCompression(){
     const [imageFileUrl, setImageFileUrl] = useState(null);    
 
     const uploadHandler= async ()=>{
+        // const compressUrl="http://127.0.0.1:8080/api/upload";
+        const compressUrl="https://python-flask-image-processing.onrender.com/api/upload";
         const formData = new FormData();
         formData.append('photo', file); 
-        const res=await fetch("http://127.0.0.1:8080/api/upload",{
+        const res=await fetch(compressUrl,{
           method:"POST",
           body:formData
         })
