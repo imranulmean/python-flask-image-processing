@@ -58,9 +58,9 @@ def compress_img(image_data, new_size_ratio=0.9, quality=15, width=None, height=
 #         'people': ['Jack', 'Harry', 'Arpan']
 #     })
 
-@app.route("/api/home",methods=["GET"])
+@app.route("/api/ping",methods=["GET"])
 def test():
-    a="hello world"
+    a="pong"
     return jsonify(a)
 
 # @app.route('/api/upload', methods=['POST'])
