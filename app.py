@@ -153,5 +153,15 @@ def image_to_pdf():
     # Send the PDF back to the client
     return send_file(pdf_bytes, mimetype='application/pdf', as_attachment=True, download_name='output.pdf')
 
+@app.route('/api/generateReport', methods=['POST'])
+def generateReport():
+    data = request.json
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    
+    return jsonify({
+    "msg":"File Uploaded Succecfully"
+    })
+
 if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+    app.run(debug=True, host="172.23.1.28", port=8080)

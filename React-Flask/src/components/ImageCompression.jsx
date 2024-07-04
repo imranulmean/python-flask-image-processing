@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 export default function ImageCompression(){
 
     const [file, setFile] = useState(null);
-    const [imageFileUrl, setImageFileUrl] = useState(null);    
+    const [imageFileUrl, setImageFileUrl] = useState(null);   
+    const [loading, setLoading]= useState(false);
 
     const uploadHandler= async ()=>{
-        // const compressUrl="http://127.0.0.1:8080/api/upload";
-        const compressUrl="https://python-flask-image-processing.onrender.com/api/upload";
+        setLoading(true);
+        const compressUrl="http://127.0.0.1:8080/api/upload";
+        // const compressUrl="https://python-flask-image-processing.onrender.com/api/upload";
         const formData = new FormData();
         formData.append('photo', file); 
         const res=await fetch(compressUrl,{
@@ -24,7 +26,8 @@ export default function ImageCompression(){
         link.setAttribute('download', 'compressed_image.jpg');
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);    
+        document.body.removeChild(link);
+        setLoading(false);
       }
     
       const downloadFile = async (filename) => {
@@ -60,9 +63,19 @@ export default function ImageCompression(){
                         <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Upload your Picture and Compress</h5>
                     </a>
                     <input type="file" accept="image/*"  onChange={(e) => setFile(e.target.files[0])} />
-                    <a onClick={uploadHandler} class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Upload Image                    
-                    </a>
+                    {
+                        loading && 
+                        <button  disabled={loading} class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Loading....                    
+                        </button>
+                    }
+                    {
+                        !loading && 
+                        <button onClick={uploadHandler} class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Upload Image                    
+                        </button>
+                    }
+
                 </div>
             </div>
         </>
